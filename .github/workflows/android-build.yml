@@ -9,18 +9,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Clonar repo
+      # 1. Clonar repositorio
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. Java
+      # 2. Java COMPATIBLE con Gradle viejo
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 8
 
-      # 3. Instalar Gradle (compatible con tu proyecto)
+      # 3. Instalar Gradle
       - name: Install Gradle
         run: |
           sudo apt update
@@ -34,7 +34,7 @@ jobs:
       - name: Install Fastlane
         run: sudo gem install fastlane
 
-      # 6. Crear keystore (en raíz para evitar errores de ruta)
+      # 6. Crear keystore
       - name: Decode Keystore
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release-key.jks
