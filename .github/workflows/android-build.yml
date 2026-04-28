@@ -13,7 +13,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. Java COMPATIBLE con Gradle viejo
+      # 2. Java compatible con Gradle viejo
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -30,23 +30,28 @@ jobs:
       - name: Generate Wrapper
         run: gradle wrapper
 
-      # 5. Instalar Fastlane
+      # 5. Corregir opciones JVM (evita error --add-opens)
+      - name: Fix Gradle JVM options
+        run: |
+          echo "org.gradle.jvmargs=" >> gradle.properties
+
+      # 6. Instalar Fastlane
       - name: Install Fastlane
         run: sudo gem install fastlane
 
-      # 6. Crear keystore
+      # 7. Crear keystore
       - name: Decode Keystore
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release-key.jks
 
-      # 7. Build
+      # 8. Build sin daemon (clave)
       - name: Build AAB
         run: |
           chmod +x gradlew
           ./gradlew clean
-          ./gradlew bundleRelease
+          ./gradlew bundleRelease --no-daemon
 
-      # 8. Deploy
+      # 9. Deploy a Play Store
       - name: Deploy to Play Store
         run: fastlane deploy
         env:
