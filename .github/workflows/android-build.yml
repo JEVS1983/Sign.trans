@@ -12,15 +12,12 @@ jobs:
 
     steps:
       - name: 📥 Clonar repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 🐦 Instalar Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.x'
-
-      - name: 🔍 Ver estructura (debug)
-        run: ls -la
 
       - name: 📦 Instalar dependencias
         run: flutter pub get
@@ -29,7 +26,7 @@ jobs:
         run: flutter build appbundle --release
 
       - name: 📤 Subir AAB
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: app-release
           path: build/app/outputs/bundle/release/app-release.aab
