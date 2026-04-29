@@ -1,43 +1,35 @@
-name: Auto Deploy Play Store
+name: Build AAB Correcto
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: 📥 Clonar repo
+        uses: actions/checkout@v3
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
+      - name: 🐦 Instalar Flutter
+        uses: subosito/flutter-action@v2
         with:
-          distribution: temurin
-          java-version: 17
+          flutter-version: '3.x'
 
-      - name: Fix Gradle Wrapper
-        run: |
-          mkdir -p gradle/wrapper
-          echo "distributionUrl=https://services.gradle.org/distributions/gradle-8.2-bin.zip" > gradle/wrapper/gradle-wrapper.properties
-          gradle wrapper
+      - name: 🔍 Ver estructura (debug)
+        run: ls -la
 
-      - name: Decode Keystore
-        run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release-key.jks
+      - name: 📦 Instalar dependencias
+        run: flutter pub get
 
-      - name: Build AAB
-        run: |
-          chmod +x gradlew
-          ./gradlew clean
-          ./gradlew bundleRelease
+      - name: ⚙️ Build AAB
+        run: flutter build appbundle --release
 
-      - name: Deploy
-        run: fastlane deploy
-        env:
-          GOOGLE_PLAY_JSON: ${{ secrets.GOOGLE_PLAY_JSON }}
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      - name: 📤 Subir AAB
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-release
+          path: build/app/outputs/bundle/release/app-release.aab
